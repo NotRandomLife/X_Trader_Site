@@ -2,50 +2,61 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>X_Trader Web Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>X Trader Web</title>
   <style>
     body {
       background-color: #1e1e1e;
       color: white;
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-      max-width: 600px;
+      max-width: 720px;
       margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 24px;
+      color: cyan;
+      font-style: italic;
+    }
+    input, select {
+      padding: 10px;
+      margin: 5px;
+      width: 250px;
     }
     .btn {
       padding: 10px 20px;
-      margin: 10px;
+      margin: 10px 5px;
       font-size: 16px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      color: white;
     }
-    .btn-green { background-color: #4caf50; color: white; }
-    .btn-red { background-color: #f44336; color: white; }
-    .btn-blue { background-color: #2196f3; color: white; }
-    .btn-orange { background-color: #ff9800; color: white; }
-    .input-box {
-      margin: 10px;
-    }
-    input[type=text] {
-      padding: 10px;
-      width: 250px;
-    }
-    #log {
+    .green { background-color: #4caf50; }
+    .red { background-color: #f44336; }
+    .blue { background-color: #2196f3; }
+    .orange { background-color: #ff9800; }
+    .purple { background-color: #9c27b0; }
+    .cyan { background-color: #03a9f4; }
+    .log {
       background: #2e2e2e;
       color: lime;
       height: 200px;
-      overflow-y: scroll;
+      overflow-y: auto;
       margin-top: 20px;
       padding: 10px;
       font-family: monospace;
+      text-align: left;
     }
     canvas {
-      width: 100% !important;
-      height: auto !important;
       margin-top: 20px;
+      width: 100%;
+      max-height: 300px;
     }
     iframe {
       margin-top: 20px;
@@ -53,72 +64,47 @@
   </style>
 </head>
 <body>
-  <img src="X_Trader_BANNER.png" alt="X_Trader Banner" style="width:100%; max-width: 500px; margin-bottom: 20px;" />
+  <img src="X_Trader_BANNER.png" alt="X_Trader Banner" style="width:100%; max-width: 600px; margin-bottom: 20px;" />
+  <h1>📈 X TRADER Dashboard</h1>
+  <h2>AI Integrated</h2>
 
-  <h1>📈 X_Trader Web Dashboard</h1>
-  <p style="color: cyan; font-style: italic;">AI Integrated</p>
+  <input type="text" id="apiKey" placeholder="API Key Binance"><br>
+  <input type="text" id="apiSecret" placeholder="Secret Key Binance"><br>
 
-  <div class="input-box">
-    <input type="text" id="apiKey" placeholder="API Key Binance" /><br />
-    <input type="text" id="apiSecret" placeholder="Secret Key Binance" />
-  </div>
+  <select id="orderMode">
+    <option value="margin">Margin</option>
+    <option value="isolated">Isolated</option>
+  </select><br>
+  <input type="number" id="leverage" placeholder="Leva" value="3"><br>
+  <input type="number" id="portfolio" placeholder="% Portafoglio" value="50"><br>
 
   <div>
-    <button class="btn btn-green" onclick="startTrading()">▶️ Avvia</button>
-    <button class="btn btn-red" onclick="stopTrading()">⛔ Ferma</button>
-    <button class="btn btn-blue" onclick="showIP()">🌐 IP</button>
-    <button class="btn btn-orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
+    <button class="btn green" onclick="log('▶️ Trading avviato...')">▶️ Avvia</button>
+    <button class="btn red" onclick="log('⛔ Trading fermato.')">⛔ Ferma</button>
+    <button class="btn blue" onclick="getIP()">🌐 IP</button>
+    <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
+    <button class="btn cyan" onclick="window.open('mailto:nrl.crypto.trade@gmail.com')">📞 Supporto</button>
+    <button class="btn purple" onclick="alert('Disponibile nella versione PRO')">🚫 Rimuovi Ads</button>
   </div>
 
-  <canvas id="btcChart" height="200"></canvas>
-  <div id="log"></div>
+  <canvas id="btcChart"></canvas>
+  <div class="log" id="logBox">📋 Log attivo:</div>
 
   <iframe src="https://notrandomlife.github.io/python-ads/adsjumbo.html" width="320" height="300" frameborder="0"></iframe>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    let running = false;
-    let intervalId = null;
-
     function log(msg) {
-      const logBox = document.getElementById("log");
-      logBox.innerHTML += `➡️ ${msg}<br/>`;
-      logBox.scrollTop = logBox.scrollHeight;
+      const box = document.getElementById("logBox");
+      box.innerHTML += "<br>➡️ " + msg;
+      box.scrollTop = box.scrollHeight;
     }
 
-    function startTrading() {
-      if (running) return;
-      running = true;
-      log("Trading avviato...");
-      intervalId = setInterval(fetchSignalAndTrade, 300000); // ogni 5 minuti
-      fetchSignalAndTrade(); // subito
-    }
-
-    function stopTrading() {
-      running = false;
-      clearInterval(intervalId);
-      log("Trading fermato.");
-    }
-
-    async function fetchSignalAndTrade() {
-      try {
-        const response = await fetch("https://tuo-backend-flask-url/api/latest"); // 🔁 CAMBIA QUESTA URL
-        const data = await response.json();
-        const signal = data.signal;
-        log(`Segnale ricevuto: ${signal.toUpperCase()}`);
-        log(`Eseguo ordine ${signal.toUpperCase()} su Binance`);
-      } catch (e) {
-        log("Errore ricezione segnale: " + e);
-      }
-    }
-
-    async function showIP() {
-      try {
-        const ip = await fetch("https://api.ipify.org?format=text").then(r => r.text());
-        log("IP pubblico: " + ip);
-      } catch (e) {
-        log("Errore IP: " + e);
-      }
+    function getIP() {
+      fetch('https://api.ipify.org')
+        .then(res => res.text())
+        .then(ip => log("🌐 Il tuo IP pubblico è: " + ip))
+        .catch(e => log("❌ Errore IP: " + e));
     }
 
     const ctx = document.getElementById('btcChart').getContext('2d');
@@ -142,22 +128,20 @@
       }
     });
 
-    async function updateChart() {
-      try {
-        const res = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=0.25&interval=minute");
-        const prices = await res.json();
-        const times = prices.prices.map(p => new Date(p[0]).toLocaleTimeString());
-        const values = prices.prices.map(p => p[1]);
-
-        chart.data.labels = times;
-        chart.data.datasets[0].data = values;
-        chart.update();
-      } catch (e) {
-        log("Errore aggiornamento grafico: " + e);
-      }
+    function updateChart() {
+      fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=0.25&interval=minute")
+        .then(res => res.json())
+        .then(data => {
+          const prices = data.prices;
+          chart.data.labels = prices.map(p => new Date(p[0]).toLocaleTimeString());
+          chart.data.datasets[0].data = prices.map(p => p[1]);
+          chart.update();
+        })
+        .catch(e => log("Errore grafico: " + e));
     }
+
     updateChart();
-    setInterval(updateChart, 300000); // ogni 5 min
+    setInterval(updateChart, 300000); // ogni 5 minuti
   </script>
 </body>
 </html>

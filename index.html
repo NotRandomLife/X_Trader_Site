@@ -11,58 +11,73 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
     }
     header {
       text-align: center;
       padding: 10px;
     }
     h1 {
-      font-size: 24px;
+      font-size: 28px;
       margin-bottom: 5px;
     }
     h2 {
-      font-size: 16px;
+      font-size: 18px;
       color: cyan;
       font-style: italic;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
-    .main-container {
+    .main-wrapper {
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 10px;
-      margin-top: 10px;
+      justify-content: space-between;
+      padding: 10px 30px;
     }
     .left, .center, .right {
       background-color: #111;
-      padding: 10px;
+      padding: 15px;
       border-radius: 8px;
     }
-    .left, .right {
-      width: 250px;
-      min-height: 400px;
+    .left {
+      flex: 1.2;
+      margin-right: 10px;
     }
     .center {
-      width: 300px;
+      flex: 1.5;
+      margin: 0 10px;
+    }
+    .right {
+      flex: 1.2;
+      margin-left: 10px;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
     }
     input, select {
       width: 100%;
       padding: 8px;
-      margin: 6px 0;
-      box-sizing: border-box;
       font-size: 14px;
+      box-sizing: border-box;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 10px;
     }
     .btn {
-      padding: 8px;
-      margin: 5px 2px;
+      flex: 0 0 48%;
+      padding: 10px;
+      margin: 5px 0;
       font-size: 14px;
       border: none;
       border-radius: 5px;
-      cursor: pointer;
       color: white;
-      width: 48%;
+      cursor: pointer;
     }
     .green { background-color: #4caf50; }
     .red { background-color: #f44336; }
@@ -73,23 +88,28 @@
     .log {
       background: #2e2e2e;
       color: lime;
-      height: 360px;
+      height: 500px;
       overflow-y: auto;
       font-family: monospace;
       font-size: 12px;
-      padding: 6px;
+      padding: 10px;
       box-sizing: border-box;
-      text-align: left;
     }
     iframe {
       width: 100%;
-      height: 360px;
+      height: 500px;
       border: none;
+    }
+    canvas {
+      margin-top: 20px;
+      width: 100%;
+      height: 240px;
+      background-color: #222;
     }
     img {
       width: 100%;
-      max-width: 400px;
-      margin: 0 auto 10px;
+      max-width: 500px;
+      margin: 0 auto 15px;
       display: block;
     }
   </style>
@@ -101,29 +121,46 @@
     <h2>AI Integrated</h2>
   </header>
 
-  <div class="main-container">
+  <div class="main-wrapper">
     <div class="left">
       <div class="log" id="logBox">📋 Log attivo:</div>
     </div>
 
     <div class="center">
-      <input type="text" id="apiKey" placeholder="API Key Binance">
-      <input type="text" id="apiSecret" placeholder="Secret Key Binance">
-      <select id="orderMode">
-        <option value="margin">Margin</option>
-        <option value="isolated">Isolated</option>
-      </select>
-      <input type="number" id="leverage" placeholder="Leva" value="3">
-      <input type="number" id="portfolio" placeholder="% Portafoglio" value="50">
+      <div class="form-group">
+        <label for="apiKey">API Key Binance</label>
+        <input type="text" id="apiKey" placeholder="Enter your API Key">
+      </div>
+      <div class="form-group">
+        <label for="apiSecret">Secret Key Binance</label>
+        <input type="text" id="apiSecret" placeholder="Enter your Secret Key">
+      </div>
+      <div class="form-group">
+        <label for="orderMode">Wallet Mode</label>
+        <select id="orderMode">
+          <option value="margin">Margin</option>
+          <option value="isolated">Isolated</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="leverage">Leverage</label>
+        <input type="number" id="leverage" value="3">
+      </div>
+      <div class="form-group">
+        <label for="portfolio">Portfolio Usage (%)</label>
+        <input type="number" id="portfolio" value="50">
+      </div>
 
-      <div>
+      <div class="btn-group">
         <button class="btn green" onclick="log('▶️ Trading avviato...')">▶️ Avvia</button>
-        <button class="btn red" onclick="log('⛔ Trading fermato.')">⛔ Ferma</button><br>
+        <button class="btn red" onclick="log('⛔ Trading fermato.')">⛔ Ferma</button>
         <button class="btn blue" onclick="getIP()">🌐 IP</button>
-        <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button><br>
+        <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
         <button class="btn cyan" onclick="window.open('mailto:nrl.crypto.trade@gmail.com')">📞 Supporto</button>
         <button class="btn purple" onclick="alert('Disponibile nella versione PRO')">🚫 Rimuovi Ads</button>
       </div>
+
+      <canvas id="btcChart"></canvas>
     </div>
 
     <div class="right">
@@ -131,6 +168,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     function log(msg) {
       const box = document.getElementById("logBox");
@@ -144,6 +182,42 @@
         .then(ip => log("🌐 Il tuo IP pubblico è: " + ip))
         .catch(e => log("❌ Errore IP: " + e));
     }
+
+    const ctx = document.getElementById('btcChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'BTC/USDC',
+          borderColor: 'lime',
+          data: [],
+          tension: 0.1
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { color: 'white' } },
+          y: { ticks: { color: 'white' } }
+        },
+        plugins: { legend: { labels: { color: 'white' } } }
+      }
+    });
+
+    function updateChart() {
+      fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=0.25&interval=minute")
+        .then(res => res.json())
+        .then(data => {
+          const prices = data.prices;
+          chart.data.labels = prices.map(p => new Date(p[0]).toLocaleTimeString());
+          chart.data.datasets[0].data = prices.map(p => p[1]);
+          chart.update();
+        })
+        .catch(e => log("Errore grafico: " + e));
+    }
+
+    updateChart();
+    setInterval(updateChart, 300000);
   </script>
 </body>
 </html>

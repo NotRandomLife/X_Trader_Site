@@ -11,6 +11,8 @@
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
     .btn {
       padding: 10px 20px;
@@ -40,12 +42,19 @@
       padding: 10px;
       font-family: monospace;
     }
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+      margin-top: 20px;
+    }
     iframe {
       margin-top: 20px;
     }
   </style>
 </head>
 <body>
+  <img src="X_Trader_BANNER.png" alt="X_Trader Banner" style="width:100%; max-width: 500px; margin-bottom: 20px;" />
+
   <h1>📈 X_Trader Web Dashboard</h1>
   <p style="color: cyan; font-style: italic;">AI Integrated</p>
 
@@ -61,7 +70,7 @@
     <button class="btn btn-orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
   </div>
 
-  <canvas id="btcChart" width="600" height="200" style="margin-top:20px;"></canvas>
+  <canvas id="btcChart" height="200"></canvas>
   <div id="log"></div>
 
   <iframe src="https://notrandomlife.github.io/python-ads/adsjumbo.html" width="320" height="300" frameborder="0"></iframe>
@@ -82,7 +91,7 @@
       running = true;
       log("Trading avviato...");
       intervalId = setInterval(fetchSignalAndTrade, 300000); // ogni 5 minuti
-      fetchSignalAndTrade(); // primo subito
+      fetchSignalAndTrade(); // subito
     }
 
     function stopTrading() {
@@ -93,7 +102,7 @@
 
     async function fetchSignalAndTrade() {
       try {
-        const response = await fetch("https://tuo-backend-flask-url/api/latest"); // <- Cambia con tuo Flask URL
+        const response = await fetch("https://tuo-backend-flask-url/api/latest"); // 🔁 CAMBIA QUESTA URL
         const data = await response.json();
         const signal = data.signal;
         log(`Segnale ricevuto: ${signal.toUpperCase()}`);

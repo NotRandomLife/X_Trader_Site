@@ -2,60 +2,221 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>X Trader Web Real</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>X Trader Web</title>
+  <style>
+    body {
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      text-align: center;
+      padding: 10px;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+    h2 {
+      font-size: 18px;
+      color: cyan;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .main-wrapper {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 30px;
+    }
+    .left, .center, .right {
+      background-color: #111;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .left {
+      flex: 1.2;
+      margin-right: 10px;
+    }
+    .center {
+      flex: 1.5;
+      margin: 0 10px;
+    }
+    .right {
+      flex: 1.2;
+      margin-left: 10px;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .btn {
+      flex: 0 0 48%;
+      padding: 10px;
+      margin: 5px 0;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+    .green { background-color: #4caf50; }
+    .red { background-color: #f44336; }
+    .blue { background-color: #2196f3; }
+    .orange { background-color: #ff9800; }
+    .purple { background-color: #9c27b0; }
+    .cyan { background-color: #03a9f4; }
+    .log {
+      background: #2e2e2e;
+      color: lime;
+      height: 240px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-top: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+    canvas {
+      width: 100%;
+      height: 500px;
+      background-color: #222;
+    }
+    img {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto 15px;
+      display: block;
+    }
+  </style>
 </head>
-<body style="background:#000;color:white;font-family:Arial;padding:20px">
-  <h1>📈 X Trader Web - Real Trading</h1>
-  <p>✅ Trading bot synced every 5 mins (real Binance trades with SL/TP and repay)</p>
+<body>
+  <header>
+    <img src="X_Trader_BANNER.png" alt="X_Trader Banner" />
+    <h1>📈 X TRADER Dashboard</h1>
+    <h2>AI Integrated</h2>
+  </header>
+
+  <div class="main-wrapper">
+    <div class="left">
+      <canvas id="btcChart"></canvas>
+      <div class="log" id="logBox">📋 Active Log:</div>
+    </div>
+
+    <div class="center">
+      <div class="form-group">
+        <label for="apiKey">Binance API Key</label>
+        <input type="text" id="apiKey" placeholder="Enter your API Key">
+      </div>
+      <div class="form-group">
+        <label for="apiSecret">Binance Secret Key</label>
+        <input type="text" id="apiSecret" placeholder="Enter your Secret Key">
+      </div>
+      <div class="form-group">
+        <label for="orderMode">Wallet Mode</label>
+        <select id="orderMode">
+          <option value="margin">Margin</option>
+          <option value="isolated">Isolated</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="leverage">Leverage</label>
+        <input type="number" id="leverage" value="3">
+      </div>
+      <div class="form-group">
+        <label for="portfolio">Portfolio Usage (%)</label>
+        <input type="number" id="portfolio" value="50">
+      </div>
+
+      <div class="btn-group">
+        <button class="btn green" onclick="log('▶️ Trading started...')">▶️ Start</button>
+        <button class="btn red" onclick="log('⛔ Trading stopped.')">⛔ Stop</button>
+        <button class="btn blue" onclick="getIP()">🌐 IP</button>
+        <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
+        <button class="btn cyan" onclick="window.open('mailto:nrl.crypto.trade@gmail.com')">📞 Support</button>
+        <button class="btn purple" onclick="alert('Available in PRO version')">🚫 Remove Ads</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <iframe src="https://notrandomlife.github.io/python-ads/adsjumbo.html"></iframe>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const apiUrl = "http://127.0.0.1:5000/api/latest";
-    const symbol = "BTCUSDC";
-    let isRunning = true;
-
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-    async function syncLoop() {
-      while (isRunning) {
-        const now = new Date();
-        const mins = now.getMinutes();
-        const secs = now.getSeconds();
-        const ms = now.getMilliseconds();
-        const nextMinute = 5 * Math.ceil(mins / 5);
-        const delay =
-          ((nextMinute === mins && secs === 0) ? 0 : ((nextMinute - mins + (nextMinute === 60 ? -60 : 0)) * 60 - secs)) * 1000 - ms;
-        console.log("⏳ Waiting", delay / 1000, "seconds to sync...");
-
-        await sleep(delay > 0 ? delay : 0);
-
-        await executeCycle(); // esegue 1 ciclo di trading
-      }
+    function log(msg) {
+      const box = document.getElementById("logBox");
+      box.innerHTML += "<br>➡️ " + msg;
+      box.scrollTop = box.scrollHeight;
     }
 
-    async function executeCycle() {
-      console.log("🟢 Executing trading cycle at", new Date().toLocaleTimeString());
-
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
-
-        const res = await fetch(apiUrl, { signal: controller.signal });
-        clearTimeout(timeout);
-
-        if (!res.ok) throw new Error("Signal fetch error");
-
-        const { signal } = await res.json();
-        console.log("📩 Received signal:", signal);
-
-        // Qui andrà tutta la logica reale: check posizione, chiusura, repay, apertura, SL/TP ecc.
-        console.log("⚙️ Eseguo operazioni su Binance...");
-
-      } catch (e) {
-        console.warn("❌ No signal received within 60s or fetch error.");
-      }
+    function getIP() {
+      fetch('https://api.ipify.org')
+        .then(res => res.text())
+        .then(ip => log("🌐 Your public IP is: " + ip))
+        .catch(e => log("❌ IP Error: " + e));
     }
 
-    syncLoop();
+    const ctx = document.getElementById('btcChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'BTC/USDC',
+          borderColor: 'lime',
+          data: [],
+          tension: 0.1
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { color: 'white' } },
+          y: { ticks: { color: 'white' } }
+        },
+        plugins: { legend: { labels: { color: 'white' } } }
+      }
+    });
+
+    function updateChart() {
+      fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=0.25&interval=minute")
+        .then(res => res.json())
+        .then(data => {
+          const prices = data.prices;
+          chart.data.labels = prices.map(p => new Date(p[0]).toLocaleTimeString());
+          chart.data.datasets[0].data = prices.map(p => p[1]);
+          chart.update();
+        })
+        .catch(e => log("Chart Error: " + e));
+    }
+
+    updateChart();
+    setInterval(updateChart, 300000);
   </script>
 </body>
 </html>

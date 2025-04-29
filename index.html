@@ -11,35 +11,21 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 10px;
+      text-align: center;
     }
     h1 {
       font-size: 22px;
-      text-align: center;
       margin-bottom: 5px;
     }
     h2 {
       font-size: 16px;
       color: cyan;
       font-style: italic;
-      text-align: center;
       margin-bottom: 15px;
     }
-    .container {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-around;
-      align-items: flex-start;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .left, .right {
-      flex: 1;
-      min-width: 300px;
-      max-width: 400px;
-    }
-    canvas {
-      width: 100%;
-      height: auto;
+    .content {
+      max-width: 420px;
+      margin: auto;
     }
     input, select {
       padding: 6px;
@@ -66,12 +52,13 @@
     .log {
       background: #2e2e2e;
       color: lime;
-      height: 140px;
+      height: 80px;
       overflow-y: auto;
       margin-top: 10px;
       padding: 6px;
       font-family: monospace;
       font-size: 12px;
+      text-align: left;
     }
     iframe {
       margin-top: 10px;
@@ -88,37 +75,34 @@
   </style>
 </head>
 <body>
-  <img src="X_Trader_BANNER.png" alt="X_Trader Banner" />
-  <h1>📈 X TRADER Dashboard</h1>
-  <h2>AI Integrated</h2>
+  <div class="content">
+    <img src="X_Trader_BANNER.png" alt="X_Trader Banner" />
+    <h1>📈 X TRADER Dashboard</h1>
+    <h2>AI Integrated</h2>
 
-  <div class="container">
-    <div class="left">
-      <canvas id="btcChart"></canvas>
+    <input type="text" id="apiKey" placeholder="API Key Binance">
+    <input type="text" id="apiSecret" placeholder="Secret Key Binance">
+    <select id="orderMode">
+      <option value="margin">Margin</option>
+      <option value="isolated">Isolated</option>
+    </select>
+    <input type="number" id="leverage" placeholder="Leva" value="3">
+    <input type="number" id="portfolio" placeholder="% Portafoglio" value="50">
+
+    <div>
+      <button class="btn green" onclick="log('▶️ Trading avviato...')">▶️ Avvia</button>
+      <button class="btn red" onclick="log('⛔ Trading fermato.')">⛔ Ferma</button>
+      <button class="btn blue" onclick="getIP()">🌐 IP</button>
+      <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
+      <button class="btn cyan" onclick="window.open('mailto:nrl.crypto.trade@gmail.com')">📞 Supporto</button>
+      <button class="btn purple" onclick="alert('Disponibile nella versione PRO')">🚫 Rimuovi Ads</button>
     </div>
-    <div class="right">
-      <input type="text" id="apiKey" placeholder="API Key Binance">
-      <input type="text" id="apiSecret" placeholder="Secret Key Binance">
-      <select id="orderMode">
-        <option value="margin">Margin</option>
-        <option value="isolated">Isolated</option>
-      </select>
-      <input type="number" id="leverage" placeholder="Leva" value="3">
-      <input type="number" id="portfolio" placeholder="% Portafoglio" value="50">
-      <div>
-        <button class="btn green" onclick="log('▶️ Trading avviato...')">▶️ Avvia</button>
-        <button class="btn red" onclick="log('⛔ Trading fermato.')">⛔ Ferma</button>
-        <button class="btn blue" onclick="getIP()">🌐 IP</button>
-        <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
-        <button class="btn cyan" onclick="window.open('mailto:nrl.crypto.trade@gmail.com')">📞 Supporto</button>
-        <button class="btn purple" onclick="alert('Disponibile nella versione PRO')">🚫 Rimuovi Ads</button>
-      </div>
-      <div class="log" id="logBox">📋 Log attivo:</div>
-      <iframe src="https://notrandomlife.github.io/python-ads/adsjumbo.html"></iframe>
-    </div>
+
+    <div class="log" id="logBox">📋 Log attivo:</div>
+
+    <iframe src="https://notrandomlife.github.io/python-ads/adsjumbo.html"></iframe>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     function log(msg) {
       const box = document.getElementById("logBox");
@@ -132,42 +116,6 @@
         .then(ip => log("🌐 Il tuo IP pubblico è: " + ip))
         .catch(e => log("❌ Errore IP: " + e));
     }
-
-    const ctx = document.getElementById('btcChart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'BTC/USDC',
-          borderColor: 'lime',
-          data: [],
-          tension: 0.1
-        }]
-      },
-      options: {
-        scales: {
-          x: { ticks: { color: 'white' } },
-          y: { ticks: { color: 'white' } }
-        },
-        plugins: { legend: { labels: { color: 'white' } } }
-      }
-    });
-
-    function updateChart() {
-      fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=0.25&interval=minute")
-        .then(res => res.json())
-        .then(data => {
-          const prices = data.prices;
-          chart.data.labels = prices.map(p => new Date(p[0]).toLocaleTimeString());
-          chart.data.datasets[0].data = prices.map(p => p[1]);
-          chart.update();
-        })
-        .catch(e => log("Errore grafico: " + e));
-    }
-
-    updateChart();
-    setInterval(updateChart, 300000);
   </script>
 </body>
 </html>

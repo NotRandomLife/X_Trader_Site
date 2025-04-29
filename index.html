@@ -6,36 +6,56 @@
   <title>X Trader Web</title>
   <style>
     body {
-      background-color: #000000;
+      background-color: #000;
       color: white;
       font-family: Arial, sans-serif;
-      max-width: 480px;
-      margin: auto;
-      padding: 20px;
-      text-align: center;
+      margin: 0;
+      padding: 10px;
     }
     h1 {
-      font-size: 26px;
-      margin-bottom: 10px;
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 5px;
     }
     h2 {
-      font-size: 18px;
+      font-size: 16px;
       color: cyan;
       font-style: italic;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .left, .right {
+      flex: 1;
+      min-width: 300px;
+      max-width: 400px;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
     }
     input, select {
-      padding: 10px;
-      margin: 5px;
-      width: 200px;
+      padding: 6px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
     }
     .btn {
-      padding: 10px 20px;
-      margin: 10px 5px;
-      font-size: 16px;
+      padding: 6px;
+      margin: 5px 2px;
+      font-size: 14px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       color: white;
+      width: 48%;
     }
     .green { background-color: #4caf50; }
     .red { background-color: #f44336; }
@@ -46,51 +66,57 @@
     .log {
       background: #2e2e2e;
       color: lime;
-      height: 200px;
+      height: 140px;
       overflow-y: auto;
-      margin-top: 20px;
-      padding: 10px;
+      margin-top: 10px;
+      padding: 6px;
       font-family: monospace;
-      text-align: left;
-    }
-    canvas {
-      margin-top: 20px;
-      width: 100%;
-      max-height: 300px;
+      font-size: 12px;
     }
     iframe {
-      margin-top: 20px;
+      margin-top: 10px;
+      width: 100%;
+      height: 250px;
+      border: none;
+    }
+    img {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 15px;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <img src="X_Trader_BANNER.png" alt="X_Trader Banner" style="width:100%; max-width: 600px; margin-bottom: 20px;" />
+  <img src="X_Trader_BANNER.png" alt="X_Trader Banner" />
   <h1>📈 X TRADER Dashboard</h1>
   <h2>AI Integrated</h2>
 
-  <input type="text" id="apiKey" placeholder="API Key Binance"><br>
-  <input type="text" id="apiSecret" placeholder="Secret Key Binance"><br>
-
-  <select id="orderMode">
-    <option value="margin">Margin</option>
-    <option value="isolated">Isolated</option>
-  </select><br>
-  <input type="number" id="leverage" placeholder="Leva" value="3"><br>
-  <input type="number" id="portfolio" placeholder="% Portafoglio" value="50"><br>
-
-  <div>
-    <button class="btn green" onclick="log('▶️ Trading avviato...')">▶️ Avvia</button>
-    <button class="btn red" onclick="log('⛔ Trading fermato.')">⛔ Ferma</button>
-    <button class="btn blue" onclick="getIP()">🌐 IP</button>
-    <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
-    <button class="btn cyan" onclick="window.open('mailto:nrl.crypto.trade@gmail.com')">📞 Supporto</button>
-    <button class="btn purple" onclick="alert('Disponibile nella versione PRO')">🚫 Rimuovi Ads</button>
+  <div class="container">
+    <div class="left">
+      <canvas id="btcChart"></canvas>
+    </div>
+    <div class="right">
+      <input type="text" id="apiKey" placeholder="API Key Binance">
+      <input type="text" id="apiSecret" placeholder="Secret Key Binance">
+      <select id="orderMode">
+        <option value="margin">Margin</option>
+        <option value="isolated">Isolated</option>
+      </select>
+      <input type="number" id="leverage" placeholder="Leva" value="3">
+      <input type="number" id="portfolio" placeholder="% Portafoglio" value="50">
+      <div>
+        <button class="btn green" onclick="log('▶️ Trading avviato...')">▶️ Avvia</button>
+        <button class="btn red" onclick="log('⛔ Trading fermato.')">⛔ Ferma</button>
+        <button class="btn blue" onclick="getIP()">🌐 IP</button>
+        <button class="btn orange" onclick="window.open('https://www.binance.com')">🔗 Binance</button>
+        <button class="btn cyan" onclick="window.open('mailto:nrl.crypto.trade@gmail.com')">📞 Supporto</button>
+        <button class="btn purple" onclick="alert('Disponibile nella versione PRO')">🚫 Rimuovi Ads</button>
+      </div>
+      <div class="log" id="logBox">📋 Log attivo:</div>
+      <iframe src="https://notrandomlife.github.io/python-ads/adsjumbo.html"></iframe>
+    </div>
   </div>
-
-  <canvas id="btcChart"></canvas>
-  <div class="log" id="logBox">📋 Log attivo:</div>
-
-  <iframe src="https://notrandomlife.github.io/python-ads/adsjumbo.html" width="320" height="300" frameborder="0"></iframe>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -141,7 +167,7 @@
     }
 
     updateChart();
-    setInterval(updateChart, 300000); // ogni 5 minuti
+    setInterval(updateChart, 300000);
   </script>
 </body>
 </html>
